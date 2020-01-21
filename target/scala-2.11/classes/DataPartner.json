@@ -1,0 +1,15 @@
+{
+  "account_id": 901,
+  "campaignId": 0,
+  "visitor_id": "9999990001",
+  "data_partner_id": 10678,
+  "data_source_id": 371631,
+  "attribute_name": "Hobbies_Games_and",
+  "attribute_value": 1,
+  "timeStamp": "2020-01-14 12:00:01",
+  "expiration": null,
+  "visitorFactEventType ": "V",
+  "idType ": "0",
+  "deviceType": "4",
+  "event_count ": 1
+}
