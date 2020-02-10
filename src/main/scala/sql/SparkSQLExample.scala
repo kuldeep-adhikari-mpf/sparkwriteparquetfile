@@ -47,23 +47,32 @@ object SparkSQLExample {
     var epochexpireDate = Instant.now.plusSeconds(864000).toEpochMilli //+10 days expire time
     val format = new SimpleDateFormat("ddMMyyy")
     val ingestionDate=format.format(Calendar.getInstance().getTime())
-    val uploadFolderName1="gs://mp-data-ingestion-v1/test/" + ingestionDate +"/"
-    val uploadFolderName="test/" + ingestionDate +"/"
+    val uploadFolderName="gs://mp-data-ingestion-v1/test/" + ingestionDate +""
+    val sourcefolderName="test/" + ingestionDate +"/"
 
     val someData = Seq(
       Row(901, 0,"10001"+epochrunDate,1,2,"testa","testavalue",new java.sql.Timestamp(epochrunDate),null,"V","1","0",1),
+      Row(901, 0,"10001"+epochrunDate,1,2,null,null,new java.sql.Timestamp(epochrunDate),null,"E","1","0",1),
       Row(901, 0,"10002"+epochrunDate,1,2,"testa","testavalue",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(23432L),"V","1","0",1),
-      Row(901, 0,"10003"+epochrunDate,10678,371631,"testa1","testavalue1",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"V","0","4",1),
-      Row(901, 0,"10004"+epochrunDate,10678,371631,"test2","testavalue1",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"V","0","4",1),
+      Row(901, 0,"10003"+epochrunDate,10678,371631,null,null,new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"E","0","4",1),
+      Row(901, 0,"10003"+epochrunDate,10678,371631,"testa1","testavalue1epochrunDate",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"V","0","4",1),
+      Row(901, 0,"10004"+epochrunDate,10678,371631,"test2","testavalue1epochrunDate",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"V","0","4",1),
       Row(901, 0,"10005"+epochrunDate,10678,371631,"test3","testavalue2",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"V","0","4",1),
-      Row(901, 0,"10006"+epochrunDate,10678,371631,"test4","testavalue2",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"V","0","4",1)
+      Row(901, 0,"10006"+epochrunDate,10678,371631,"test4","testavalue2",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"V","0","4",1),
+      Row(901, 0,"10007"+epochrunDate,774847,381268,null,null,new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"E","0","4",1),
+      Row(901, 0,"10007"+epochrunDate,774847,381268,"TapSyncActivityAutoTest_MOOKIE20191104","testavalue1epochrunDate",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"V","0","4",1),
+      Row(901, 0,"10008"+epochrunDate,10678,380947,null,null,new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"E","0","4",1),
+      Row(901, 0,"10009"+epochrunDate,993761,993761,null,null,new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"E","0","4",1),
+      Row(901, 0,"10010"+epochrunDate,993761,993761,"age","20",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"V","0","4",1),
+      Row(901, 0,"10011"+epochrunDate,993761,993761,"age","30",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"V","0","4",1),
+      Row(901, 0,"10012"+epochrunDate,993761,993761,"gender","male",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"V","0","4",1)
     )
     epochrunDate = Instant.now.toEpochMilli
     val someData903 = Seq(
       Row(903, 0,"10001"+epochrunDate,1,2,"testa","testavalue",new java.sql.Timestamp(epochrunDate),null,"V","1","0",1),
       Row(903, 0,"10002"+epochrunDate,1,2,"testa","testavalue",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(23432L),"V","1","0",1),
-      Row(903, 1,"10003"+epochrunDate,10678,371631,"testa11","testavalue1",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"V","0","4",1),
-      Row(903, 0,"10004"+epochrunDate,10678,371631,"test2","testavalue1",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"V","0","4",1),
+      Row(903, 1,"10003"+epochrunDate,10678,371631,"testa11","testavalue1epochrunDate",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"V","0","4",1),
+      Row(903, 0,"10004"+epochrunDate,10678,371631,"test2","testavalue1epochrunDate",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"V","0","4",1),
       Row(903, 0,"10005"+epochrunDate,10678,371631,"test3","testavalue2",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"V","0","4",1),
       Row(903, 0,"10006"+epochrunDate,10678,371631,"test4","testavalue2",new java.sql.Timestamp(epochrunDate),null,"V","0","4",1)
 
@@ -72,8 +81,8 @@ object SparkSQLExample {
     val someData902 = Seq(
       Row(902, 0,"10001"+epochrunDate,1,2,"testa","testavalue",new java.sql.Timestamp(epochrunDate),null,"V","1","0",1),
       Row(902, 0,"10002"+epochrunDate,1,2,"testa","testavalue",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"V","1","0",1),
-      Row(902, 1,"10003"+epochrunDate,10678,371631,"testa11","testavalue1畫",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"X","0","4",1),
-      Row(902, 0,"10004"+epochrunDate,10678,371631,"test2","testavalue1観",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"V","0","4",1),
+      Row(902, 1,"10003"+epochrunDate,10678,371631,"testa11","testavalue1epochrunDate畫",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"X","0","4",1),
+      Row(902, 0,"10004"+epochrunDate,10678,371631,"test2","testavalue1epochrunDate観",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"V","0","4",1),
       Row(902, 0,"10005"+epochrunDate,10678,371631,"test3Simplified Chinese汉字","testavalue2UnicodeâæëĄNewǼ漢字,chinese汉字",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"V","2","4",1),
       Row(902, 0,"10006"+epochrunDate,10678,371631,"test3Simplified Chinese汉字","testavalue2UnicodeâæëĄNewǼ漢字,chinese汉字",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"V","3","4",1),
       Row(902, 0,"10007"+epochrunDate,10678,371631,"test3Simplified Chinese汉字","testavalue2UnicodeâæëĄNewǼ漢字,chinese汉字",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"V","3","4",1)
@@ -99,24 +108,24 @@ object SparkSQLExample {
       spark.sparkContext.parallelize(someData),
       StructType(someSchema)
     )
-    someDF901.write.mode(SaveMode.Overwrite).parquet(uploadFolderName+"DataPartner1.901.parquet."+epochrunDate)
-    println("{\"DataFileLocation\":"+uploadFolderName+"\"DataPartner1.901.parquet.\""+epochrunDate+"/\",\"account_id\":901}\"")
+    someDF901.write.mode(SaveMode.Overwrite).parquet(sourcefolderName+"DataPartner1.901.parquet."+epochrunDate)
+    println("{\"DataFileLocation\":\""+uploadFolderName+"/DataPartner1.901.parquet."+epochrunDate+"/\",\"account_id\":901}\"")
 
     val someDF903 = spark.createDataFrame(
       spark.sparkContext.parallelize(someData903),
       StructType(someSchema)
     )
 
-    someDF903.write.mode(SaveMode.Overwrite).parquet(uploadFolderName+"DataPartner1.903.parquet."+epochrunDate)
-    println("{\"DataFileLocation\":"+uploadFolderName+"\"DataPartner1.903.parquet.\""+epochrunDate+"/\",\"account_id\":903}\"")
+    someDF903.write.mode(SaveMode.Overwrite).parquet(sourcefolderName+"DataPartner1.903.parquet."+epochrunDate)
+    println("{\"DataFileLocation\":\""+uploadFolderName+"/DataPartner1.903.parquet."+epochrunDate+"/\",\"account_id\":903}\"")
 
     val someDF902 = spark.createDataFrame(
       spark.sparkContext.parallelize(someData902),
       StructType(someSchema)
     )
 
-    someDF902.write.mode(SaveMode.Overwrite).parquet(uploadFolderName+"DataPartner1.902.parquet."+epochrunDate)
-    println("{\"DataFileLocation\":"+uploadFolderName+"\"DataPartner1.902.parquet.\""+epochrunDate+"/\",\"account_id\":902}\"")
+    someDF902.write.mode(SaveMode.Overwrite).parquet(sourcefolderName+"DataPartner1.902.parquet."+epochrunDate)
+    println("{\"DataFileLocation\":\""+uploadFolderName+"/DataPartner1.902.parquet."+epochrunDate+"/\",\"account_id\":902}\"")
 
     someDF901.createOrReplaceTempView("DataPartner")
 
@@ -127,8 +136,8 @@ object SparkSQLExample {
     val someDataBadSchema902 = Seq(
       Row(902, 0,"10001"+epochrunDate,1,2,"testa","testavalue",new java.sql.Timestamp(epochrunDate),null,"V","1"),
       Row(902, 0,"10002"+epochrunDate,1,2,"testa","testavalue",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"V","1"),
-      Row(902, 1,"10003"+epochrunDate,10678,371631,"testa11","testavalue1畫",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"X","0"),
-      Row(902, 0,"10004"+epochrunDate,10678,371631,"test2","testavalue1観",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"V","0"),
+      Row(902, 1,"10003"+epochrunDate,10678,371631,"testa11","testavalue1epochrunDate畫",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"X","0"),
+      Row(902, 0,"10004"+epochrunDate,10678,371631,"test2","testavalue1epochrunDate観",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"V","0"),
       Row(902, 0,"10005"+epochrunDate,10678,371631,"test3Simplified Chinese汉字","testavalue2UnicodeâæëĄNewǼ漢字,chinese汉字",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"V","2"),
       Row(902, 0,"10006"+epochrunDate,10678,371631,"test3Simplified Chinese汉字","testavalue2UnicodeâæëĄNewǼ漢字,chinese汉字",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"V","3"),
       Row(902, 0,"10007"+epochrunDate,10678,371631,"test3Simplified Chinese汉字","testavalue2UnicodeâæëĄNewǼ漢字,chinese汉字",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"V","3")
@@ -152,8 +161,8 @@ object SparkSQLExample {
       spark.sparkContext.parallelize(someDataBadSchema902),
       StructType(someSchemaBad)
     )
-    someDF902BadSchema.write.mode(SaveMode.Overwrite).parquet(uploadFolderName+"DataPartner1.902.badschema.parquet."+epochrunDate)
-    println("{\"DataFileLocation\":"+uploadFolderName+"\"DataPartner1.902.badschema.parquet.\""+epochrunDate+"/\",\"account_id\":902}\"")
+    someDF902BadSchema.write.mode(SaveMode.Overwrite).parquet(sourcefolderName+"DataPartner1.902.badschema.parquet."+epochrunDate)
+    println("{\"DataFileLocation\":\""+uploadFolderName+"/DataPartner1.902.badschema.parquet."+epochrunDate+"/\",\"account_id\":902}\"")
     someDF902BadSchema.createOrReplaceTempView("DataPartner")
 
     val sqlDF1 = spark.sql("SELECT * FROM DataPartner")

@@ -1,0 +1,9 @@
+*.iml
+.idea
+*.swp
+*.project
+*.classpath
+*.gitignore
+*.prefs
+target
+cucumber-jvm-maven.iml
