@@ -45,11 +45,21 @@ object SparkSQLExample {
   private def runDataPartnerWriteParquetFile(spark: SparkSession): Unit = {
     var epochrunDate = Instant.now.toEpochMilli
     var epochexpireDate = Instant.now.plusSeconds(864000).toEpochMilli //+10 days expire time
+    var epochYesterdayDate = Instant.now.minusSeconds(86400).toEpochMilli //-1 days expire time
+    var epochDayBeforeYesterdayDate = Instant.now.minusSeconds(86400*2).toEpochMilli //-2 days expire time
+    var epoch3dayBack = Instant.now.minusSeconds(86400*3).toEpochMilli //-3 days expire time
+    var epoch6dayBack = Instant.now.minusSeconds(86400*6).toEpochMilli //-7 days expire time
+    var epoch7dayBack = Instant.now.minusSeconds(86400*7).toEpochMilli //-7 days expire time
+    var epoch8dayBack = Instant.now.minusSeconds(86400*8).toEpochMilli //-8 days expire time
+
     val format = new SimpleDateFormat("ddMMyyy")
     val ingestionDate=format.format(Calendar.getInstance().getTime())
-    val uploadFolderName="gs://mp-data-ingestion-v1/test/" + ingestionDate +""
-    val sourcefolderName="test/" + ingestionDate +"/"
-
+    //gsutil cp -r test/13022020 gs://mp-data-ingestion-v1/test/
+    val uploadBucket="gs://mp-data-ingestion-v1/test/"
+    val uploadFolderName=uploadBucket + ingestionDate +""
+    val sourcefolderName="test/" + ingestionDate +""
+    println("gsutil cp -r "+sourcefolderName +" "+ uploadBucket)
+    var logKafkaMessage=""
     val someData = Seq(
       Row(901, 0,"10001"+epochrunDate,1,2,"testa","testavalue",new java.sql.Timestamp(epochrunDate),null,"V","1","0",1),
       Row(901, 0,"10001"+epochrunDate,1,2,null,null,new java.sql.Timestamp(epochrunDate),null,"E","1","0",1),
@@ -65,7 +75,31 @@ object SparkSQLExample {
       Row(901, 0,"10009"+epochrunDate,993761,993761,null,null,new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"E","0","4",1),
       Row(901, 0,"10010"+epochrunDate,993761,993761,"age","20",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"V","0","4",1),
       Row(901, 0,"10011"+epochrunDate,993761,993761,"age","30",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"V","0","4",1),
-      Row(901, 0,"10012"+epochrunDate,993761,993761,"gender","male",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"V","0","4",1)
+      Row(901, 0,"10012"+epochrunDate,993761,993761,"gender","male",new java.sql.Timestamp(epochrunDate),new java.sql.Timestamp(epochexpireDate),"V","0","4",1),
+      Row(901, 0,"10013"+epochYesterdayDate,993761,993761,"day","yesterday",new java.sql.Timestamp(epochYesterdayDate),new java.sql.Timestamp(epochexpireDate),"V","0","4",1),
+      Row(901, 0,"10014"+epochYesterdayDate,993761,993761,"day","yesterday",new java.sql.Timestamp(epochYesterdayDate),new java.sql.Timestamp(epochexpireDate),"V","1","4",1),
+      Row(901, 0,"10015"+epochDayBeforeYesterdayDate,993761,993761,"day","DayBeforeYesterdayDate",new java.sql.Timestamp(epochDayBeforeYesterdayDate),new java.sql.Timestamp(epochexpireDate),"V","0","4",1),
+      Row(901, 0,"10016"+epochDayBeforeYesterdayDate,993761,993761,"day","DayBeforeYesterdayDate",new java.sql.Timestamp(epochDayBeforeYesterdayDate),new java.sql.Timestamp(epochexpireDate),"V","1","4",1),
+      Row(901, 0,"10017"+epoch3dayBack,993761,993761,"day","3daysback"+epoch3dayBack,new java.sql.Timestamp(epoch3dayBack),new java.sql.Timestamp(epochexpireDate),"V","0","4",1),
+      Row(901, 0,"10018"+epoch3dayBack,993761,993761,"day","3daysback"+epoch3dayBack,new java.sql.Timestamp(epoch3dayBack),new java.sql.Timestamp(epochexpireDate),"V","1","4",1),
+      Row(901, 0,"10019"+epoch6dayBack,993761,993761,"day","6daysback"+epoch6dayBack,new java.sql.Timestamp(epoch6dayBack),new java.sql.Timestamp(epochexpireDate),"V","0","4",1),
+      Row(901, 0,"10020"+epoch6dayBack,993761,993761,"day","6daysback"+epoch6dayBack,new java.sql.Timestamp(epoch6dayBack),new java.sql.Timestamp(epochexpireDate),"V","1","4",1),
+      Row(901, 0,"10021"+epoch7dayBack,993761,993761,"day","7daysback"+epoch7dayBack,new java.sql.Timestamp(epoch7dayBack),new java.sql.Timestamp(epochexpireDate),"V","0","4",1),
+      Row(901, 0,"10022"+epoch7dayBack,993761,993761,"day","7daysback"+epoch7dayBack,new java.sql.Timestamp(epoch7dayBack),new java.sql.Timestamp(epochexpireDate),"V","1","4",1),
+      Row(901, 0,"10021"+epoch8dayBack,993761,993761,"day","8daysback"+epoch8dayBack,new java.sql.Timestamp(epoch8dayBack),new java.sql.Timestamp(epochexpireDate),"V","0","4",1),
+      Row(901, 0,"10022"+epoch8dayBack,993761,993761,"day","8daysback"+epoch8dayBack,new java.sql.Timestamp(epoch8dayBack),new java.sql.Timestamp(epochexpireDate),"V","1","4",1),
+      Row(901, 0,"10023"+epochYesterdayDate,774847,381268,"day","yesterday",new java.sql.Timestamp(epochYesterdayDate),new java.sql.Timestamp(epochexpireDate),"V","0","4",1),
+      Row(901, 0,"10024"+epochYesterdayDate,774847,381268,"day","yesterday",new java.sql.Timestamp(epochYesterdayDate),new java.sql.Timestamp(epochexpireDate),"V","1","4",1),
+      Row(901, 0,"10025"+epochDayBeforeYesterdayDate,774847,381268,"day","DayBeforeYesterdayDate",new java.sql.Timestamp(epochDayBeforeYesterdayDate),new java.sql.Timestamp(epochexpireDate),"V","0","4",1),
+      Row(901, 0,"10026"+epochDayBeforeYesterdayDate,774847,381268,"day","DayBeforeYesterdayDate",new java.sql.Timestamp(epochDayBeforeYesterdayDate),new java.sql.Timestamp(epochexpireDate),"V","1","4",1),
+      Row(901, 0,"10027"+epoch3dayBack,774847,381268,"day","3daysback"+epoch3dayBack,new java.sql.Timestamp(epoch3dayBack),new java.sql.Timestamp(epochexpireDate),"V","0","4",1),
+      Row(901, 0,"10028"+epoch3dayBack,774847,381268,"day","3daysback"+epoch3dayBack,new java.sql.Timestamp(epoch3dayBack),new java.sql.Timestamp(epochexpireDate),"V","1","4",1),
+      Row(901, 0,"10029"+epoch6dayBack,774847,381268,"day","6daysback"+epoch6dayBack,new java.sql.Timestamp(epoch6dayBack),new java.sql.Timestamp(epochexpireDate),"V","0","4",1),
+      Row(901, 0,"10030"+epoch6dayBack,774847,381268,"day","6daysback"+epoch6dayBack,new java.sql.Timestamp(epoch6dayBack),new java.sql.Timestamp(epochexpireDate),"V","1","4",1),
+      Row(901, 0,"10031"+epoch7dayBack,774847,381268,"day","7daysback"+epoch7dayBack,new java.sql.Timestamp(epoch7dayBack),new java.sql.Timestamp(epochexpireDate),"V","0","4",1),
+      Row(901, 0,"10032"+epoch7dayBack,774847,381268,"day","7daysback"+epoch7dayBack,new java.sql.Timestamp(epoch7dayBack),new java.sql.Timestamp(epochexpireDate),"V","1","4",1),
+      Row(901, 0,"10033"+epoch8dayBack,774847,381268,"day","8daysback"+epoch8dayBack,new java.sql.Timestamp(epoch8dayBack),new java.sql.Timestamp(epochexpireDate),"V","0","4",1),
+      Row(901, 0,"10034"+epoch8dayBack,774847,381268,"day","8daysback"+epoch8dayBack,new java.sql.Timestamp(epoch8dayBack),new java.sql.Timestamp(epochexpireDate),"V","1","4",1)
     )
     epochrunDate = Instant.now.toEpochMilli
     val someData903 = Seq(
@@ -108,24 +142,27 @@ object SparkSQLExample {
       spark.sparkContext.parallelize(someData),
       StructType(someSchema)
     )
-    someDF901.write.mode(SaveMode.Overwrite).parquet(sourcefolderName+"DataPartner1.901.parquet."+epochrunDate)
-    println("{\"DataFileLocation\":\""+uploadFolderName+"/DataPartner1.901.parquet."+epochrunDate+"/\",\"account_id\":901}\"")
+    someDF901.write.mode(SaveMode.Overwrite).parquet(sourcefolderName+"/DataPartner1.901.parquet."+epochrunDate)
+    logKafkaMessage="{\"DataFileLocation\":\""+uploadFolderName+"/DataPartner1.901.parquet."+epochrunDate+"/\",\"account_id\":901}"
+    println("{\"DataFileLocation\":\""+uploadFolderName+"/DataPartner1.901.parquet."+epochrunDate+"/\",\"account_id\":901}")
 
     val someDF903 = spark.createDataFrame(
       spark.sparkContext.parallelize(someData903),
       StructType(someSchema)
     )
 
-    someDF903.write.mode(SaveMode.Overwrite).parquet(sourcefolderName+"DataPartner1.903.parquet."+epochrunDate)
-    println("{\"DataFileLocation\":\""+uploadFolderName+"/DataPartner1.903.parquet."+epochrunDate+"/\",\"account_id\":903}\"")
+    someDF903.write.mode(SaveMode.Overwrite).parquet(sourcefolderName+"/DataPartner1.903.parquet."+epochrunDate)
+    logKafkaMessage=logKafkaMessage+"\n"+"{\"DataFileLocation\":\""+uploadFolderName+"/DataPartner1.903.parquet."+epochrunDate+"/\",\"account_id\":903}"
+    println("{\"DataFileLocation\":\""+uploadFolderName+"/DataPartner1.903.parquet."+epochrunDate+"/\",\"account_id\":903}")
 
     val someDF902 = spark.createDataFrame(
       spark.sparkContext.parallelize(someData902),
       StructType(someSchema)
     )
 
-    someDF902.write.mode(SaveMode.Overwrite).parquet(sourcefolderName+"DataPartner1.902.parquet."+epochrunDate)
-    println("{\"DataFileLocation\":\""+uploadFolderName+"/DataPartner1.902.parquet."+epochrunDate+"/\",\"account_id\":902}\"")
+    someDF902.write.mode(SaveMode.Overwrite).parquet(sourcefolderName+"/DataPartner1.902.parquet."+epochrunDate)
+    logKafkaMessage=logKafkaMessage+"\n"+"{\"DataFileLocation\":\""+uploadFolderName+"/DataPartner1.902.parquet."+epochrunDate+"/\",\"account_id\":902}"
+    println("{\"DataFileLocation\":\""+uploadFolderName+"/DataPartner1.902.parquet."+epochrunDate+"/\",\"account_id\":902}")
 
     someDF901.createOrReplaceTempView("DataPartner")
 
@@ -161,12 +198,15 @@ object SparkSQLExample {
       spark.sparkContext.parallelize(someDataBadSchema902),
       StructType(someSchemaBad)
     )
-    someDF902BadSchema.write.mode(SaveMode.Overwrite).parquet(sourcefolderName+"DataPartner1.902.badschema.parquet."+epochrunDate)
-    println("{\"DataFileLocation\":\""+uploadFolderName+"/DataPartner1.902.badschema.parquet."+epochrunDate+"/\",\"account_id\":902}\"")
+    someDF902BadSchema.write.mode(SaveMode.Overwrite).parquet(sourcefolderName+"/DataPartner1.902.badschema.parquet."+epochrunDate)
+    logKafkaMessage=logKafkaMessage+"\n"+"{\"DataFileLocation\":\""+uploadFolderName+"/DataPartner1.902.badschema.parquet."+epochrunDate+"/\",\"account_id\":902}"
+
+    println("{\"DataFileLocation\":\""+uploadFolderName+"/DataPartner1.902.badschema.parquet."+epochrunDate+"/\",\"account_id\":902}")
     someDF902BadSchema.createOrReplaceTempView("DataPartner")
 
     val sqlDF1 = spark.sql("SELECT * FROM DataPartner")
     sqlDF1.show()
+    println(logKafkaMessage)
   }
 
   private def runBasicDataFrameExampleWriteParquetFile(spark: SparkSession): Unit = {
